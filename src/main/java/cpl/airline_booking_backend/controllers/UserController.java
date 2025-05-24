@@ -1,4 +1,4 @@
-package cpl.airline_booking_backend.controller;
+package cpl.airline_booking_backend.controllers;
 
 import cpl.airline_booking_backend.dao.UserDAO;
 import cpl.airline_booking_backend.model.User;
