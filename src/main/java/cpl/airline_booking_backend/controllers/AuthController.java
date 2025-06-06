@@ -5,6 +5,7 @@ import cpl.airline_booking_backend.model.User;
 import cpl.airline_booking_backend.utils.JwtUtil;
 import cpl.airline_booking_backend.utils.PasswordUtil;
 import org.springframework.web.bind.annotation.*;
+import cpl.airline_booking_backend.model.LoginResponse;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -23,21 +24,25 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/login")
-    public String login(@RequestBody User loginUser) {
-        try {
-            User dbUser = userDAO.findByEmail(loginUser.getEmail());
+@PostMapping("/login")
+public LoginResponse login(@RequestBody User loginUser) {
+    try {
+        User dbUser = userDAO.findByEmail(loginUser.getEmail());
 
-            if (dbUser != null && PasswordUtil.checkPassword(loginUser.getPassword(), dbUser.getPassword())) {
-                String token = JwtUtil.generateToken(dbUser.getEmail());
-                return "Login successful. Token: " + token;
-            } else {
-                return "Invalid email or password";
-            }
+        if (dbUser != null && PasswordUtil.checkPassword(loginUser.getPassword(), dbUser.getPassword())) {
+            String token = JwtUtil.generateToken(dbUser.getEmail());
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Login failed: " + e.getMessage();
+            dbUser.setPassword(null); // Hide password in response
+
+            return new LoginResponse("Login successful.", token, dbUser);
+        } else {
+            return new LoginResponse("Invalid email or password");
         }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return new LoginResponse("Login failed: " + e.getMessage());
     }
+}
+
 }

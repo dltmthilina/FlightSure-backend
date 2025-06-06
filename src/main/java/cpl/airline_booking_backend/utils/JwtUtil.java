@@ -8,7 +8,7 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 
 public class JwtUtil {
-    private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor("ThisIsA32CharSecretKeyForJWT!".getBytes());
+    private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor("ThisIsAReallySecureKeyThatIsAtLeast32Bytes!".getBytes());
     private static final long EXPIRATION_MS = 86400000; // 1 day
 
     public static String generateToken(String email) {
