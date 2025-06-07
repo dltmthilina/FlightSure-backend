@@ -17,7 +17,7 @@ public class User {
     }
 
     // All-argument constructor
-    public User(int userId, String firstName String lastName, String email, String phoneNumber, String passportNumber, String password, String role, String status) {
+    public User(int userId, String firstName, String lastName, String email, String phoneNumber, String passportNumber, String password, String role, String status) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -51,7 +51,7 @@ public class User {
     }
     
     public String getPassportNumber() {
-        return PassportNumber;
+        return passportNumber;
     }
 
     public String getPassword() {
@@ -71,11 +71,11 @@ public class User {
         this.userId = userId;
     }
 
-    public String setFirstName() {
+    public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
     
-    public String setLastName() {
+    public void setLastName(String lastName) {
         this.lastName = lastName;
     }
 
@@ -83,12 +83,12 @@ public class User {
         this.email = email;
     }
     
-    public String setPhoneNumber() {
+    public void setPhoneNumber(String phonNumber) {
         this.phoneNumber = phoneNumber;
     }
     
-    public String setPassportNumber(){
-        this.PassportNumber = PassportNumber;
+    public void setPassportNumber(String passportNumber){
+        this.passportNumber = passportNumber;
     }
 
     public void setPassword(String password) {

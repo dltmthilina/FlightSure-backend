@@ -14,22 +14,19 @@ public class AuthController {
     private final UserDAO userDAO = new UserDAO();
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody User user) {
+    public LoginResponse register(@RequestBody User user) {
     try {
         User existingUser = userDAO.findByEmail(user.getEmail());
         if (existingUser != null) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("Error: Email is already registered.");
+            return new LoginResponse("Email is already registered.");
         }
-
         userDAO.save(user);
-        return ResponseEntity.ok("User registered successfully!");
+        String token = JwtUtil.generateToken(user.getEmail());
+        return new LoginResponse("User registered successfully!", token, user);
     } catch (Exception e) {
         e.printStackTrace();
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error: " + e.getMessage());
+        return new LoginResponse("Register failed: " + e.getMessage());
+        
     }
 }
 
@@ -37,12 +34,11 @@ public class AuthController {
 public LoginResponse login(@RequestBody User loginUser) {
     try {
         User dbUser = userDAO.findByEmail(loginUser.getEmail());
-
         if (dbUser != null && PasswordUtil.checkPassword(loginUser.getPassword(), dbUser.getPassword())) {
             String token = JwtUtil.generateToken(dbUser.getEmail());
-
+          
             dbUser.setPassword(null); // Hide password in response
-
+ 
             return new LoginResponse("Login successful.", token, dbUser);
         } else {
             return new LoginResponse("Invalid email or password");
