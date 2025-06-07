@@ -2,10 +2,14 @@ package cpl.airline_booking_backend.model;
 
 public class User {
     private int userId;
-    private String name;
+    private String firstName;
+    private String lastName;
     private String email;
+    private String phoneNumber;
+    private String passportNumber;
     private String password;
     private String role;
+    private String nationality;
     private String status;
 
     // No-argument constructor
@@ -13,10 +17,13 @@ public class User {
     }
 
     // All-argument constructor
-    public User(int userId, String name, String email, String password, String role, String status) {
+    public User(int userId, String firstName String lastName, String email, String phoneNumber, String passportNumber, String password, String role, String status) {
         this.userId = userId;
-        this.name = name;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.passportNumber = passportNumber;
         this.password = password;
         this.role = role;
         this.status = status;
@@ -27,12 +34,24 @@ public class User {
         return userId;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
+    }
+    
+    public String getLastName() {
+        return lastName;
     }
 
     public String getEmail() {
         return email;
+    }
+    
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+    
+    public String getPassportNumber() {
+        return PassportNumber;
     }
 
     public String getPassword() {
@@ -52,12 +71,24 @@ public class User {
         this.userId = userId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String setFirstName() {
+        this.firstName = firstName;
+    }
+    
+    public String setLastName() {
+        this.lastName = lastName;
     }
 
     public void setEmail(String email) {
         this.email = email;
+    }
+    
+    public String setPhoneNumber() {
+        this.phoneNumber = phoneNumber;
+    }
+    
+    public String setPassportNumber(){
+        this.PassportNumber = PassportNumber;
     }
 
     public void setPassword(String password) {
@@ -77,8 +108,11 @@ public class User {
     public String toString() {
         return "User{" +
                 "userId=" + userId +
-                ", name='" + name + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", passportNumber='" + passportNumber + '\'' +
                 ", password='" + password + '\'' +
                 ", role='" + role + '\'' +
                 ", status='" + status + '\'' +
