@@ -14,15 +14,24 @@ public class AuthController {
     private final UserDAO userDAO = new UserDAO();
 
     @PostMapping("/register")
-    public String register(@RequestBody User user) {
-        try {
-            userDAO.save(user);
-            return "User registered successfully!";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Error: " + e.getMessage();
+    public ResponseEntity<String> register(@RequestBody User user) {
+    try {
+        User existingUser = userDAO.findByEmail(user.getEmail());
+        if (existingUser != null) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Error: Email is already registered.");
         }
+
+        userDAO.save(user);
+        return ResponseEntity.ok("User registered successfully!");
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error: " + e.getMessage());
     }
+}
 
 @PostMapping("/login")
 public LoginResponse login(@RequestBody User loginUser) {
