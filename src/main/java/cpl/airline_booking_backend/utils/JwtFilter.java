@@ -2,23 +2,23 @@ package cpl.airline_booking_backend.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.Filter;
-import jakarta.servlet.annotation.WebFilter;
+
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@WebFilter("/*")
-public class JwtFilter implements Filter {
+@Component
+public class JwtFilter extends OncePerRequestFilter {
 
     private static final String SECRET = "ThisIsAReallySecureKeyThatIsAtLeast32Bytes!";
 
     @Override
-    public void doFilter(jakarta.servlet.ServletRequest request, jakarta.servlet.ServletResponse response, FilterChain chain)
+    protected void doFilterInternal(HttpServletRequest request,HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         
           HttpServletRequest httpRequest = (HttpServletRequest)request;

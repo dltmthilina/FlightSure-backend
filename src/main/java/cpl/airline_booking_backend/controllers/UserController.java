@@ -16,10 +16,10 @@ public class UserController {
     public String registerUser(@RequestBody User user) {
         try {
             userDAO.save(user);
-            return "✅ User saved successfully!";
+            return " User saved successfully!";
         } catch (Exception e) {
             e.printStackTrace();
-            return "❌ Error saving user: " + e.getMessage();
+            return " Error saving user: " + e.getMessage();
         }
     }
 
