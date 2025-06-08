@@ -7,6 +7,13 @@ import cpl.airline_booking_backend.utils.PasswordUtil;
 import org.springframework.web.bind.annotation.*;
 import cpl.airline_booking_backend.model.LoginResponse;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -14,11 +21,15 @@ public class AuthController {
     private final UserDAO userDAO = new UserDAO();
 
     @PostMapping("/register")
-    public LoginResponse register(@RequestBody User user) {
+    public ResponseEntity<Map<String, Object>> register(@RequestBody User user) {
+        
+        Map<String, Object> response = new HashMap<>();
     try {
         User existingUser = userDAO.findByEmail(user.getEmail());
         if (existingUser != null) {
-            return new LoginResponse("Email is already registered.");
+            response.put("success", false);
+            response.put("message", "Email is already registered.");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         }
         
           if (user.getRole() == null || user.getRole().isEmpty()) {
@@ -29,16 +40,26 @@ public class AuthController {
         }
         userDAO.save(user);
         String token = JwtUtil.generateToken(user.getEmail());
-        return new LoginResponse("User registered successfully!", token, user);
+        response.put("success", true);
+            response.put("user", user);
+            response.put("token", token);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        
+        
     } catch (Exception e) {
         e.printStackTrace();
-        return new LoginResponse("Register failed: " + e.getMessage());
-        
+                response.put("success", false);
+        response.put("message", "Register failed: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    .body(response);
+          
     }
 }
 
 @PostMapping("/login")
-public LoginResponse login(@RequestBody User loginUser) {
+public ResponseEntity<Map<String, Object>> login(@RequestBody User loginUser) {
+    
+    Map<String, Object> response = new HashMap<>();
     try {
         User dbUser = userDAO.findByEmail(loginUser.getEmail());
         if (dbUser != null && PasswordUtil.checkPassword(loginUser.getPassword(), dbUser.getPassword())) {
@@ -46,14 +67,24 @@ public LoginResponse login(@RequestBody User loginUser) {
           
             dbUser.setPassword(null); // Hide password in response
  
-            return new LoginResponse("Login successful.", token, dbUser);
+            response.put("success", true);
+            response.put("user", dbUser);
+            response.put("token", token);
+            return ResponseEntity.status(HttpStatus.OK)
+    .body(response);
+            
         } else {
-            return new LoginResponse("Invalid email or password");
+            response.put("success", false);
+            response.put("message", "Invalid email or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
     } catch (Exception e) {
         e.printStackTrace();
-        return new LoginResponse("Login failed: " + e.getMessage());
+        response.put("success", false);
+        response.put("message", "Login failed " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    .body(response);
     }
 }
 
