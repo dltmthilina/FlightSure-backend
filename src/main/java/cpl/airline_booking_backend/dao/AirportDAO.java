@@ -46,4 +46,31 @@ public class AirportDAO {
 
         return airports;
     }
+    
+public Airport findByCode(String code) {
+    String sql = "SELECT * FROM airport WHERE code = ?";
+    
+    try (Connection conn = DatabaseConfig.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setString(1, code);
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next()) {
+            Airport airport = new Airport();
+            airport.setAirportId(rs.getInt("airport_id"));
+            airport.setCode(rs.getString("code"));
+            airport.setName(rs.getString("name"));
+            airport.setCity(rs.getString("city"));
+            airport.setCountry(rs.getString("country"));
+            return airport;
+        }
+    } catch (Exception e) {
+        e.printStackTrace(); // You could also use a logger here
+    }
+
+    return null;
+}
+
+
 }
