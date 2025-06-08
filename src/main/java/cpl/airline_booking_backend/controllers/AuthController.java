@@ -20,6 +20,13 @@ public class AuthController {
         if (existingUser != null) {
             return new LoginResponse("Email is already registered.");
         }
+        
+          if (user.getRole() == null || user.getRole().isEmpty()) {
+            user.setRole("CUSTOMER"); // default role
+        }
+        if (user.getStatus() == null || user.getStatus().isEmpty()) {
+            user.setStatus("ACTIVE"); // default status
+        }
         userDAO.save(user);
         String token = JwtUtil.generateToken(user.getEmail());
         return new LoginResponse("User registered successfully!", token, user);
