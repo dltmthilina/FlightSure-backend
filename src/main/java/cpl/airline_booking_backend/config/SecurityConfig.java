@@ -27,7 +27,7 @@ public class SecurityConfig {
             .csrf().disable()
             .cors().and()
             .authorizeHttpRequests()
-            .requestMatchers("/api/auth/**", "/api/airports/**", "/api/airplanes/**").permitAll()
+            .requestMatchers("/api/auth/**", "/api/airports/**", "/api/airplanes/**", "/api/flights/**").permitAll()
             .anyRequest().authenticated()
             .and()
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
