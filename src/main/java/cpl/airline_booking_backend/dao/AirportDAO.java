@@ -10,7 +10,7 @@ import java.util.List;
 public class AirportDAO {
 
     public void save(Airport airport) throws Exception {
-        String sql = "INSERT INTO airports (code, name, city, country) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO airports (code, name, city, country, time_zone) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -19,6 +19,7 @@ public class AirportDAO {
             stmt.setString(2, airport.getName());
             stmt.setString(3, airport.getCity());
             stmt.setString(4, airport.getCountry());
+            stmt.setString(5, airport.getTimeZone());
 
             stmt.executeUpdate();
         }
@@ -39,6 +40,7 @@ public class AirportDAO {
                 a.setName(rs.getString("name"));
                 a.setCity(rs.getString("city"));
                 a.setCountry(rs.getString("country"));
+                a.setTimeZone(rs.getString("time_zone"));
 
                 airports.add(a);
             }
@@ -63,6 +65,7 @@ public Airport findByCode(String code) {
             airport.setName(rs.getString("name"));
             airport.setCity(rs.getString("city"));
             airport.setCountry(rs.getString("country"));
+            airport.setTimeZone(rs.getString("time_zone"));
             return airport;
         }
     } catch (Exception e) {

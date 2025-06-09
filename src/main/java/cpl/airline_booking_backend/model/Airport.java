@@ -6,15 +6,25 @@ public class Airport {
     private String name;
     private String city;
     private String country;
+    private String timeZone;
 
     public Airport() {}
 
-    public Airport(int airportId, String code, String name, String city, String country) {
+    public Airport(int airportId, String code, String name, String city, String country, String timeZone) {
         this.airportId = airportId;
         this.code = code;
         this.name = name;
         this.city = city;
         this.country = country;
+        this.timeZone = timeZone;
+    }
+    
+    public String getTimeZone(){
+    return timeZone;
+    }
+    
+    public void setTimeZone(String timeZone){
+        this.timeZone = timeZone;
     }
 
     public int getAirportId() {
