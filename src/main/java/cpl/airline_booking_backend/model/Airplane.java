@@ -9,10 +9,11 @@ public class Airplane {
     private int capacityBusiness;
     private int capacityEconomy;
     private String manufacturer;
+    private String initialLocation;
 
     public Airplane() {}
 
-    public Airplane(int airplaneId, String regNumber, String model, String category, int capacityFirst, int capacityBusiness, int capacityEconomy, String manufacturer) {
+    public Airplane(int airplaneId, String regNumber, String model, String category, int capacityFirst, int capacityBusiness, int capacityEconomy, String manufacturer, String initialLocation) {
         this.airplaneId = airplaneId;
         this.regNumber = regNumber;
         this.model = model;
@@ -21,6 +22,7 @@ public class Airplane {
         this.capacityBusiness = capacityBusiness;
         this.capacityEconomy = capacityEconomy;
         this.manufacturer = manufacturer;
+        this.initialLocation = initialLocation;
     }
 
     public int getAirplaneId() {
@@ -29,6 +31,14 @@ public class Airplane {
 
     public void setAirplaneId(int airplaneId) {
         this.airplaneId = airplaneId;
+    }
+    
+        public String getInitialLocation() {
+        return initialLocation;
+    }
+
+    public void setInitialLocation(String location) {
+        this.initialLocation = location;
     }
     
     public String getRegNumber(){

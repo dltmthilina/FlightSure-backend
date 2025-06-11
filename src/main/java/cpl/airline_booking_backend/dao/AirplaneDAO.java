@@ -11,8 +11,8 @@ import java.util.Optional;
 public class AirplaneDAO {
 
     public void save(Airplane airplane) throws Exception {
-        String sql = "INSERT INTO airplanes (reg_number, model, category, capacity_first, capacity_business, capacity_economy, manufacturer) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO airplanes (reg_number, model, category, capacity_first, capacity_business, capacity_economy, initial_location, manufacturer) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -24,7 +24,8 @@ public class AirplaneDAO {
             stmt.setInt(4, airplane.getCapacityFirst());
             stmt.setInt(5, airplane.getCapacityBusiness());
             stmt.setInt(6, airplane.getCapacityEconomy());
-            stmt.setString(7, airplane.getManufacturer());
+            stmt.setString(7, airplane.getInitialLocation());
+            stmt.setString(8, airplane.getManufacturer());
 
             stmt.executeUpdate();
         }
@@ -47,6 +48,7 @@ public class AirplaneDAO {
                 a.setCapacityFirst(rs.getInt("capacity_first"));
                 a.setCapacityBusiness(rs.getInt("capacity_business"));
                 a.setCapacityEconomy(rs.getInt("capacity_economy"));
+                a.setInitialLocation(rs.getString("initial_location"));
                 a.setManufacturer(rs.getString("manufacturer"));
 
                 airplanes.add(a);
@@ -74,6 +76,7 @@ public class AirplaneDAO {
                     a.setCapacityFirst(rs.getInt("capacity_first"));
                     a.setCapacityBusiness(rs.getInt("capacity_business"));
                     a.setCapacityEconomy(rs.getInt("capacity_economy"));
+                    a.setInitialLocation(rs.getString("initial_location"));
                     a.setManufacturer(rs.getString("manufacturer"));
 
                     return Optional.of(a);
