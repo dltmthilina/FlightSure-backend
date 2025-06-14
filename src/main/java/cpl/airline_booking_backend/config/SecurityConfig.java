@@ -24,13 +24,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf().disable()
-            .cors().and()
-            .authorizeHttpRequests()
-            .requestMatchers("/api/auth/**", "/api/airports/**", "/api/airplanes/**", "/api/flights/**").permitAll()
+            .csrf(csrf -> csrf.disable())
+             .cors(cors -> {})
+            .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/api/auth/**").permitAll()
             .anyRequest().authenticated()
-            .and()
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        )
+        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

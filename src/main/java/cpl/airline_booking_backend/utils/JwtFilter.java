@@ -9,8 +9,17 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import io.jsonwebtoken.security.Keys;
+
+import java.security.Key;
+import io.jsonwebtoken.JwtParser;
 
 import java.io.IOException;
+
+import java.util.Collections;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -18,11 +27,11 @@ public class JwtFilter extends OncePerRequestFilter {
     private static final String SECRET = "ThisIsAReallySecureKeyThatIsAtLeast32Bytes!";
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,HttpServletResponse response, FilterChain chain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        
-          HttpServletRequest httpRequest = (HttpServletRequest)request;
-    HttpServletResponse httpResponse = (HttpServletResponse)response;
+
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         String path = httpRequest.getRequestURI();
 
@@ -44,17 +53,29 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
 
         try {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(SECRET.getBytes())
+            Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
+
+            Claims claims = Jwts
+                    .parserBuilder()
+                    .setSigningKey(key)
+                    .build()
                     .parseClaimsJws(token)
                     .getBody();
 
-            // Optional: you can access claims.getSubject() for email
+            String email = claims.getSubject();
+            
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                // Optionally, you could load UserDetails from DB and assign roles
+                UsernamePasswordAuthenticationToken auth =
+                        new UsernamePasswordAuthenticationToken(email, null, Collections.emptyList());
 
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
             chain.doFilter(request, response);
+            
         } catch (Exception e) {
             httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-           httpResponse.getWriter().write("Unauthorized: " + e.getMessage());
+            httpResponse.getWriter().write("Unauthorized: " + e.getMessage());
         }
     }
 }
