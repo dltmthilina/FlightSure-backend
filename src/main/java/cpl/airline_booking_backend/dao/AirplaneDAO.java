@@ -58,13 +58,42 @@ public class AirplaneDAO {
         return airplanes;
     }
     
-     public Optional<Airplane> findByRegNumber(String regNumber) throws Exception {
+    public Optional<Airplane> findByRegNumber(String regNumber) throws Exception {
         String sql = "SELECT * FROM airplanes WHERE reg_number = ?";
 
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, regNumber);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Airplane a = new Airplane();
+                    a.setAirplaneId(rs.getInt("airplane_id"));
+                    a.setModel(rs.getString("model"));
+                    a.setRegNumber(rs.getString("reg_number"));
+                    a.setCategory(rs.getString("category"));
+                    a.setCapacityFirst(rs.getInt("capacity_first"));
+                    a.setCapacityBusiness(rs.getInt("capacity_business"));
+                    a.setCapacityEconomy(rs.getInt("capacity_economy"));
+                    a.setInitialLocation(rs.getString("initial_location"));
+                    a.setManufacturer(rs.getString("manufacturer"));
+
+                    return Optional.of(a);
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+     }
+    
+    public Optional<Airplane> findById(int airplaneId) throws Exception {
+        String sql = "SELECT * FROM airplanes WHERE airplane_id = ?";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, airplaneId);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {

@@ -20,52 +20,81 @@ public class AirplaneController {
 
     @PostMapping
     public ResponseEntity<Map<String, Object>> addAirplane(@RequestBody Airplane airplane) {
-        
+
         Map<String, Object> response = new HashMap<>();
-        
+
         try {
-            
+
             Optional<Airplane> existingAirplane = airplaneDAO.findByRegNumber(airplane.getRegNumber());
             if (existingAirplane.isPresent()) {
                 response.put("success", false);
-            response.put("message", "An airplane with registration number '" + airplane.getRegNumber() + "' already exists.");
+                response.put("message", "An airplane with registration number '" + airplane.getRegNumber() + "' already exists.");
                 return ResponseEntity
                         .status(HttpStatus.CONFLICT)
                         .body(response);
             }
-            
+
             airplaneDAO.save(airplane);
             response.put("success", true);
             response.put("message", "Airplane added successfully!");
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(response);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             response.put("success", false);
-        response.put("message", "Error: " + e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            response.put("message", "Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
- @GetMapping
+    @GetMapping
     public ResponseEntity<Map<String, Object>> getAllAirplanes() {
-    Map<String, Object> response = new HashMap<>();
-    try {
-        List<Airplane> airplanes = airplaneDAO.findAll();
-        response.put("success", true);
-        response.put("data", airplanes);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(response);
-    } catch (Exception e) {
-        e.printStackTrace();
-        response.put("success", false);
-        response.put("message", "Error: " + e.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(response);
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<Airplane> airplanes = airplaneDAO.findAll();
+            response.put("success", true);
+            response.put("data", airplanes);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(response);
+        }
     }
-}
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> getAirplaneById(@PathVariable int id) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Optional<Airplane> airplane = airplaneDAO.findById(id);
+            if (airplane.isPresent()) {
+                response.put("success", true);
+                response.put("data", airplane.get());
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .body(response);
+            } else {
+                response.put("success", false);
+                response.put("message", "Airplane not found with ID: " + id);
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(response);
+        }
+    }
+
 }
