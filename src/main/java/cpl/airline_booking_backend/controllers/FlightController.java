@@ -20,24 +20,79 @@ public class FlightController {
 
     @PostMapping
     public ResponseEntity<Map<String, Object>> createFlight(@RequestBody Flight flight) {
-        
-         Map<String, Object> response = new HashMap<>();
-         
+
+        Map<String, Object> response = new HashMap<>();
+
         try {
+            String currentLocation = flightDAO.getCurrentLocation(flight.getAirplaneId());
+
+            if (currentLocation == null) {
+                currentLocation = flight.getAirplane().getInitialLocation();
+            }
+
+            if (!currentLocation.equals(flight.getOrigin())) {
+                response.put("success", false);
+                response.put("message", "Airplane is not at the origin location");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            }
             flightDAO.save(flight);
-            
+
             response.put("success", true);
             response.put("message", "Flight added successfully!");
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(response);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             response.put("success", false);
-        response.put("message", "Error: " + e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            response.put("message", "Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> updateFlight(@PathVariable int id, @RequestBody Flight flight) {
+
+        Map<String, Object> response = new HashMap<>();
+        if (flight == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Flight existingFlight = null;
+        try {
+            existingFlight = flightDAO.findById(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+
+        if (existingFlight == null) {
+            response.put("success", false);
+            response.put("message", "Flight not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        existingFlight.setFlightNumber(flight.getFlightNumber());
+        existingFlight.setOrigin(flight.getOrigin());
+        existingFlight.setDestination(flight.getDestination());
+        existingFlight.setDepartureTime(flight.getDepartureTime());
+        existingFlight.setArrivalTime(flight.getArrivalTime());
+        existingFlight.setAirplaneId(flight.getAirplaneId());
+
+        try {
+            flightDAO.save(existingFlight);
+            response.put("success", true);
+            response.put("message", "Flight updated successfully");
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+
     }
 
     @GetMapping
@@ -46,15 +101,15 @@ public class FlightController {
         try {
             List<Flight> flights = flightDAO.findAll();
             response.put("success", true);
-           response.put("data", flights);
-           return ResponseEntity
+            response.put("data", flights);
+            return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(response);
         } catch (Exception e) {
             e.printStackTrace();
             response.put("success", false);
-        response.put("message", "Error: " + e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            response.put("message", "Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 }
