@@ -11,11 +11,12 @@ import java.util.List;
 public class FlightDAO {
 
     public void save(Flight flight) throws Exception {
-        String sql = "INSERT INTO flights (flight_number, origin, destination, departure_time, arrival_time, airplane_id) " +
-                     "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO flights (flight_number, origin, destination, departure_time, arrival_time, airplane_id) "
+                +
+                "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, flight.getFlightNumber());
             stmt.setString(2, flight.getOrigin());
@@ -33,8 +34,8 @@ public class FlightDAO {
         String sql = "SELECT f.*, a.*" + "FROM flights f JOIN airplanes a ON f.airplane_id = a.airplane_id";
 
         try (Connection conn = DatabaseConfig.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 Flight f = new Flight();
@@ -45,7 +46,7 @@ public class FlightDAO {
                 f.setDepartureTime(rs.getString("departure_time"));
                 f.setArrivalTime(rs.getString("arrival_time"));
                 f.setAirplaneId(rs.getInt("airplane_id"));
-                
+
                 Airplane a = new Airplane();
                 a.setAirplaneId(rs.getInt("airplane_id"));
                 a.setRegNumber(rs.getString("reg_number"));
@@ -55,7 +56,7 @@ public class FlightDAO {
                 a.setCapacityBusiness(rs.getInt("capacity_business"));
                 a.setCapacityEconomy(rs.getInt("capacity_economy"));
                 a.setManufacturer(rs.getString("manufacturer"));
-                
+
                 f.setAirplane(a);
 
                 flights.add(f);
@@ -63,5 +64,60 @@ public class FlightDAO {
         }
 
         return flights;
+    }
+
+    public String getCurrentLocation(int airplaneId) throws Exception {
+        String sql = "SELECT destination FROM flights WHERE airplane_id = ? ORDER BY arrival_time DESC LIMIT 1";
+        try (Connection conn = DatabaseConfig.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, airplaneId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("destination");
+                }
+            }
+        }
+        // If no flights, return null to indicate use initialLocation
+        return null;
+    }
+
+    public Flight findById(int flightId) throws Exception {
+        String sql = "SELECT f.*, a.* FROM flights f JOIN airplanes a ON f.airplane_id = a.airplane_id WHERE f.flight_id = ?";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, flightId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Flight flight = new Flight();
+                    flight.setFlightId(rs.getInt("flight_id"));
+                    flight.setFlightNumber(rs.getString("flight_number"));
+                    flight.setOrigin(rs.getString("origin"));
+                    flight.setDestination(rs.getString("destination"));
+                    flight.setDepartureTime(rs.getString("departure_time"));
+                    flight.setArrivalTime(rs.getString("arrival_time"));
+                    flight.setAirplaneId(rs.getInt("airplane_id"));
+
+                    Airplane airplane = new Airplane();
+                    airplane.setAirplaneId(rs.getInt("airplane_id"));
+                    airplane.setRegNumber(rs.getString("reg_number"));
+                    airplane.setModel(rs.getString("model"));
+                    airplane.setCategory(rs.getString("category"));
+                    airplane.setCapacityFirst(rs.getInt("capacity_first"));
+                    airplane.setCapacityBusiness(rs.getInt("capacity_business"));
+                    airplane.setCapacityEconomy(rs.getInt("capacity_economy"));
+                    airplane.setManufacturer(rs.getString("manufacturer"));
+
+                    flight.setAirplane(airplane);
+
+                    return flight;
+                } else {
+                    return null;
+                }
+            }
+        }
+    }
+
 }
-}   
