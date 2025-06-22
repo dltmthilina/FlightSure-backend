@@ -2,6 +2,7 @@ package cpl.airline_booking_backend.dao;
 
 import cpl.airline_booking_backend.config.DatabaseConfig;
 import cpl.airline_booking_backend.model.Airplane;
+import cpl.airline_booking_backend.model.Airport;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -11,33 +12,51 @@ import java.util.Optional;
 public class AirplaneDAO {
 
     public void save(Airplane airplane) throws Exception {
-        String sql = "INSERT INTO airplanes (reg_number, model, category, capacity_first, capacity_business, capacity_economy, initial_location, manufacturer) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO airplanes (reg_number, model, category, capacity_first, capacity_business, capacity_economy, initial_location, manufacturer) "
+                +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-           
             stmt.setString(1, airplane.getRegNumber());
             stmt.setString(2, airplane.getModel());
             stmt.setString(3, airplane.getCategory());
             stmt.setInt(4, airplane.getCapacityFirst());
             stmt.setInt(5, airplane.getCapacityBusiness());
             stmt.setInt(6, airplane.getCapacityEconomy());
-            stmt.setString(7, airplane.getInitialLocation());
+            stmt.setString(7, airplane.getInitialLocationId());
             stmt.setString(8, airplane.getManufacturer());
 
             stmt.executeUpdate();
         }
     }
 
+    public void update(Airplane airplane) throws Exception {
+        // filepath: src/main/java/cpl/airline_booking_backend/dao/AirplaneDAO.java
+        String sql = "UPDATE airplanes SET reg_number = ?, model = ?, category = ?, capacity_first = ?, capacity_business = ?, capacity_economy = ?, initial_location = ?, manufacturer = ? WHERE airplane_id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, airplane.getRegNumber());
+            stmt.setString(2, airplane.getModel());
+            stmt.setString(3, airplane.getCategory());
+            stmt.setInt(4, airplane.getCapacityFirst());
+            stmt.setInt(5, airplane.getCapacityBusiness());
+            stmt.setInt(6, airplane.getCapacityEconomy());
+            stmt.setString(7, airplane.getInitialLocationId());
+            stmt.setString(8, airplane.getManufacturer());
+            stmt.setInt(9, airplane.getAirplaneId());
+            stmt.executeUpdate();
+        }
+    }
+
     public List<Airplane> findAll() throws Exception {
         List<Airplane> airplanes = new ArrayList<>();
-        String sql = "SELECT * FROM airplanes";
+        String sql = "SELECT a.*, ap.* FROM airplanes a LEFT JOIN airports ap ON a.initial_location = ap.airport_id";
 
         try (Connection conn = DatabaseConfig.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 Airplane a = new Airplane();
@@ -48,21 +67,35 @@ public class AirplaneDAO {
                 a.setCapacityFirst(rs.getInt("capacity_first"));
                 a.setCapacityBusiness(rs.getInt("capacity_business"));
                 a.setCapacityEconomy(rs.getInt("capacity_economy"));
-                a.setInitialLocation(rs.getString("initial_location"));
+                a.setInitialLocationId(rs.getString("initial_location"));
                 a.setManufacturer(rs.getString("manufacturer"));
 
+                int airportId = rs.getInt("ap.airport_id");
+
+                if (!rs.wasNull()) {
+                    Airport airport = new Airport();
+                    airport.setAirportId(airportId);
+                    airport.setName(rs.getString("name"));
+                    airport.setCity(rs.getString("city"));
+                    airport.setCountry(rs.getString("country"));
+                    airport.setCode(rs.getString("code"));
+                    airport.setTimeZone(rs.getString("time_zone"));
+
+                    a.setInitialLocation(airport);
+
+                }
                 airplanes.add(a);
             }
         }
 
         return airplanes;
     }
-    
+
     public Optional<Airplane> findByRegNumber(String regNumber) throws Exception {
         String sql = "SELECT * FROM airplanes WHERE reg_number = ?";
 
         try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, regNumber);
 
@@ -76,7 +109,7 @@ public class AirplaneDAO {
                     a.setCapacityFirst(rs.getInt("capacity_first"));
                     a.setCapacityBusiness(rs.getInt("capacity_business"));
                     a.setCapacityEconomy(rs.getInt("capacity_economy"));
-                    a.setInitialLocation(rs.getString("initial_location"));
+                    a.setInitialLocationId(rs.getString("initial_location"));
                     a.setManufacturer(rs.getString("manufacturer"));
 
                     return Optional.of(a);
@@ -85,13 +118,13 @@ public class AirplaneDAO {
                 }
             }
         }
-     }
-    
+    }
+
     public Optional<Airplane> findById(int airplaneId) throws Exception {
         String sql = "SELECT * FROM airplanes WHERE airplane_id = ?";
 
         try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, airplaneId);
 
@@ -105,7 +138,7 @@ public class AirplaneDAO {
                     a.setCapacityFirst(rs.getInt("capacity_first"));
                     a.setCapacityBusiness(rs.getInt("capacity_business"));
                     a.setCapacityEconomy(rs.getInt("capacity_economy"));
-                    a.setInitialLocation(rs.getString("initial_location"));
+                    a.setInitialLocationId(rs.getString("initial_location"));
                     a.setManufacturer(rs.getString("manufacturer"));
 
                     return Optional.of(a);
@@ -114,5 +147,5 @@ public class AirplaneDAO {
                 }
             }
         }
-     }
+    }
 }

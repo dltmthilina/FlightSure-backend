@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -28,7 +29,8 @@ public class AirplaneController {
             Optional<Airplane> existingAirplane = airplaneDAO.findByRegNumber(airplane.getRegNumber());
             if (existingAirplane.isPresent()) {
                 response.put("success", false);
-                response.put("message", "An airplane with registration number '" + airplane.getRegNumber() + "' already exists.");
+                response.put("message",
+                        "An airplane with registration number '" + airplane.getRegNumber() + "' already exists.");
                 return ResponseEntity
                         .status(HttpStatus.CONFLICT)
                         .body(response);
@@ -97,4 +99,44 @@ public class AirplaneController {
         }
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> updateAirplane(@PathVariable int id, @RequestBody Airplane airplane) {
+
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Optional<Airplane> existingAirplane = airplaneDAO.findById(id);
+            if (existingAirplane.isPresent()) {
+                Airplane airplaneToUpdate = existingAirplane.get();
+
+                // Update the fields
+                airplaneToUpdate.setRegNumber(airplane.getRegNumber());
+                airplaneToUpdate.setModel(airplane.getModel());
+                airplaneToUpdate.setCategory(airplane.getCategory());
+                airplaneToUpdate.setCapacityFirst(airplane.getCapacityFirst());
+                airplaneToUpdate.setCapacityBusiness(airplane.getCapacityBusiness());
+                airplaneToUpdate.setCapacityEconomy(airplane.getCapacityEconomy());
+                airplaneToUpdate.setManufacturer(airplane.getManufacturer());
+                airplaneToUpdate.setInitialLocationId(airplane.getInitialLocationId());
+
+                airplaneDAO.update(airplaneToUpdate);
+                response.put("data", airplaneToUpdate);
+                response.put("success", true);
+                response.put("message", "Airplane updated successfully!");
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+            } else {
+                response.put("success", false);
+                response.put("message", "Airplane not found with ID: " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+        } catch (SQLIntegrityConstraintViolationException e) {
+            response.put("success", false);
+            response.put("message", "Duplicate entry for registration number: " + airplane.getRegNumber());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 }
