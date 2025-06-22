@@ -9,11 +9,13 @@ public class Airplane {
     private int capacityBusiness;
     private int capacityEconomy;
     private String manufacturer;
-    private String initialLocation;
+    private String initialLocationId;
+    private Airport initialLocation;
+
 
     public Airplane() {}
 
-    public Airplane(int airplaneId, String regNumber, String model, String category, int capacityFirst, int capacityBusiness, int capacityEconomy, String manufacturer, String initialLocation) {
+    public Airplane(int airplaneId, String regNumber, String model, String category, int capacityFirst, int capacityBusiness, int capacityEconomy, String manufacturer, String initialLocationId) {
         this.airplaneId = airplaneId;
         this.regNumber = regNumber;
         this.model = model;
@@ -22,7 +24,7 @@ public class Airplane {
         this.capacityBusiness = capacityBusiness;
         this.capacityEconomy = capacityEconomy;
         this.manufacturer = manufacturer;
-        this.initialLocation = initialLocation;
+        this.initialLocationId = initialLocationId;
     }
 
     public int getAirplaneId() {
@@ -32,13 +34,13 @@ public class Airplane {
     public void setAirplaneId(int airplaneId) {
         this.airplaneId = airplaneId;
     }
-    
-        public String getInitialLocation() {
-        return initialLocation;
+
+        public String getInitialLocationId() {
+        return initialLocationId;
     }
 
-    public void setInitialLocation(String location) {
-        this.initialLocation = location;
+    public void setInitialLocationId(String initialLocationId) {
+        this.initialLocationId = initialLocationId;
     }
     
     public String getRegNumber(){
@@ -95,6 +97,14 @@ public class Airplane {
 
     public void setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
+    }
+
+     public Airport getInitialLocation() {
+        return initialLocation;
+    }
+
+    public void setInitialLocation(Airport initialLocation) {
+        this.initialLocation = initialLocation;
     }
 
     // Optional: total capacity
