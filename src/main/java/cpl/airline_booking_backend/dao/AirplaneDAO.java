@@ -148,4 +148,75 @@ public class AirplaneDAO {
             }
         }
     }
+
+    public Airport getCurrentLocation(int airplaneId) throws Exception {
+        String sql = "SELECT ap.* FROM flights f " +
+                "JOIN airports ap ON f.destination = ap.airport_id " +
+                "WHERE f.airplane_id = ? AND f.arrival_time <= NOW() " +
+                "ORDER BY f.arrival_time DESC LIMIT 1";
+        try (Connection conn = DatabaseConfig.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, airplaneId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Airport a = new Airport();
+                    a.setAirportId(rs.getInt("airport_id"));
+                    a.setCode(rs.getString("code"));
+                    a.setName(rs.getString("name"));
+                    a.setCity(rs.getString("city"));
+                    a.setCountry(rs.getString("country"));
+                    a.setTimeZone(rs.getString("time_zone"));
+
+                    return a;
+                }
+            }
+        }
+
+        Optional<Airplane> airplaneOpt = findById(airplaneId);
+        if (airplaneOpt.isPresent()) {
+            Airplane airplane = airplaneOpt.get();
+            String initialLocationId = airplane.getInitialLocationId();
+            String airportSql = "SELECT * FROM airports WHERE airport_id = ?";
+            try (Connection conn = DatabaseConfig.getConnection();
+                    PreparedStatement stmt = conn.prepareStatement(airportSql)) {
+                stmt.setString(1, initialLocationId);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        Airport a = new Airport();
+                        a.setAirportId(rs.getInt("airport_id"));
+                        a.setCode(rs.getString("code"));
+                        a.setName(rs.getString("name"));
+                        a.setCity(rs.getString("city"));
+                        a.setCountry(rs.getString("country"));
+                        a.setTimeZone(rs.getString("time_zone"));
+                        return a;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public String getLocationAtTime(int airplaneId, String departureTime) throws Exception {
+        // Find the latest flight that ends before the new departure time
+        String sql = "SELECT destination FROM flights " +
+                "WHERE airplane_id = ? AND arrival_time <= ? " +
+                "ORDER BY arrival_time DESC LIMIT 1";
+        try (Connection conn = DatabaseConfig.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, airplaneId);
+            stmt.setString(2, departureTime);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("destination");
+                }
+            }
+        }
+        // If no flights, return initial location
+        Optional<Airplane> airplaneOpt = findById(airplaneId);
+        return airplaneOpt.map(Airplane::getInitialLocationId).orElse(null);
+    }
+
+    
 }

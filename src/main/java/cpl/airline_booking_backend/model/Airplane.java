@@ -10,12 +10,14 @@ public class Airplane {
     private int capacityEconomy;
     private String manufacturer;
     private String initialLocationId;
+    private Airport currentLocation;
     private Airport initialLocation;
 
+    public Airplane() {
+    }
 
-    public Airplane() {}
-
-    public Airplane(int airplaneId, String regNumber, String model, String category, int capacityFirst, int capacityBusiness, int capacityEconomy, String manufacturer, String initialLocationId) {
+    public Airplane(int airplaneId, String regNumber, String model, String category, int capacityFirst,
+            int capacityBusiness, int capacityEconomy, String manufacturer, String initialLocationId) {
         this.airplaneId = airplaneId;
         this.regNumber = regNumber;
         this.model = model;
@@ -25,6 +27,15 @@ public class Airplane {
         this.capacityEconomy = capacityEconomy;
         this.manufacturer = manufacturer;
         this.initialLocationId = initialLocationId;
+
+    }
+
+    public Airport getCurrentLocation() {
+        return currentLocation;
+    }
+
+    public void setCurrentLocation(Airport location) {
+        this.currentLocation = location;
     }
 
     public int getAirplaneId() {
@@ -35,18 +46,18 @@ public class Airplane {
         this.airplaneId = airplaneId;
     }
 
-        public String getInitialLocationId() {
+    public String getInitialLocationId() {
         return initialLocationId;
     }
 
     public void setInitialLocationId(String initialLocationId) {
         this.initialLocationId = initialLocationId;
     }
-    
-    public String getRegNumber(){
+
+    public String getRegNumber() {
         return regNumber;
     }
-    
+
     public void setRegNumber(String regNumber) {
         this.regNumber = regNumber;
     }
@@ -99,7 +110,7 @@ public class Airplane {
         this.manufacturer = manufacturer;
     }
 
-     public Airport getInitialLocation() {
+    public Airport getInitialLocation() {
         return initialLocation;
     }
 

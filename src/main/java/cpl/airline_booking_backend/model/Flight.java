@@ -1,5 +1,4 @@
 package cpl.airline_booking_backend.model;
-import cpl.airline_booking_backend.model.Airplane;
 
 public class Flight {
     private int flightId;
@@ -9,13 +8,14 @@ public class Flight {
     private String departureTime;
     private String arrivalTime;
     private int airplaneId;
-    
+
     private Airplane airplane;
 
-    public Flight() {}
+    public Flight() {
+    }
 
     public Flight(int flightId, String flightNumber, String origin, String destination,
-                  String departureTime, String arrivalTime, int airplaneId) {
+            String departureTime, String arrivalTime, int airplaneId) {
         this.flightId = flightId;
         this.flightNumber = flightNumber;
         this.origin = origin;
@@ -80,7 +80,7 @@ public class Flight {
     public void setAirplaneId(int airplaneId) {
         this.airplaneId = airplaneId;
     }
-    
+
     public Airplane getAirplane() {
         return airplane;
     }
@@ -88,5 +88,5 @@ public class Flight {
     public void setAirplane(Airplane airplane) {
         this.airplane = airplane;
     }
-   
+
 }

@@ -66,21 +66,6 @@ public class FlightDAO {
         return flights;
     }
 
-    public String getCurrentLocation(int airplaneId) throws Exception {
-        String sql = "SELECT destination FROM flights WHERE airplane_id = ? ORDER BY arrival_time DESC LIMIT 1";
-        try (Connection conn = DatabaseConfig.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, airplaneId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("destination");
-                }
-            }
-        }
-        // If no flights, return null to indicate use initialLocation
-        return null;
-    }
-
     public Flight findById(int flightId) throws Exception {
         String sql = "SELECT f.*, a.* FROM flights f JOIN airplanes a ON f.airplane_id = a.airplane_id WHERE f.flight_id = ?";
 
@@ -118,6 +103,28 @@ public class FlightDAO {
                 }
             }
         }
+    }
+
+    public boolean hasTimeConflict(int airplaneId, String newDepartureTime, String newArrivalTime) throws Exception {
+        String sql = "SELECT COUNT(*) FROM flights " +
+                "WHERE airplane_id = ? " +
+                "AND arrival_time > NOW() " + // Only consider not completed flights
+                "AND ((departure_time < ? AND arrival_time > ?) " + // Overlaps with new flight
+                "OR (departure_time < ? AND arrival_time > ?))";
+        try (Connection conn = DatabaseConfig.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, airplaneId);
+            stmt.setString(2, newArrivalTime);
+            stmt.setString(3, newDepartureTime);
+            stmt.setString(4, newArrivalTime);
+            stmt.setString(5, newDepartureTime);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
     }
 
 }

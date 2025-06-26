@@ -1,6 +1,9 @@
 package cpl.airline_booking_backend.controllers;
 
+import cpl.airline_booking_backend.dao.AirplaneDAO;
 import cpl.airline_booking_backend.dao.FlightDAO;
+import cpl.airline_booking_backend.model.Airplane;
+import cpl.airline_booking_backend.model.Airport;
 import cpl.airline_booking_backend.model.Flight;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,31 +20,47 @@ import java.util.Optional;
 public class FlightController {
 
     private final FlightDAO flightDAO = new FlightDAO();
+    private final AirplaneDAO airplaneDAO = new AirplaneDAO();
 
     @PostMapping
     public ResponseEntity<Map<String, Object>> createFlight(@RequestBody Flight flight) {
-
         Map<String, Object> response = new HashMap<>();
 
         try {
-            String currentLocation = flightDAO.getCurrentLocation(flight.getAirplaneId());
+            // 1. Check if the airplane will be at the origin at the new flight's departure
+            // time
+            String locationAtDeparture = airplaneDAO.getLocationAtTime(
+                    flight.getAirplaneId(), flight.getDepartureTime());
 
-            if (currentLocation == null) {
-                currentLocation = flight.getAirplane().getInitialLocation();
+            if (locationAtDeparture == null) {
+                response.put("success", false);
+                response.put("message", "Airplane or its location not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
 
-            if (!currentLocation.equals(flight.getOrigin())) {
+            if (!locationAtDeparture.equals(flight.getOrigin())) {
                 response.put("success", false);
-                response.put("message", "Airplane is not at the origin location");
+                response.put("message", "Airplane is not at the origin location at the departure time");
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
             }
+
+            // 2. Check for time conflicts with existing (not completed) flights
+            boolean hasConflict = flightDAO.hasTimeConflict(
+                    flight.getAirplaneId(),
+                    flight.getDepartureTime(),
+                    flight.getArrivalTime());
+            if (hasConflict) {
+                response.put("success", false);
+                response.put("message", "Time conflict: Airplane has another scheduled flight during this period.");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            }
+
+            // 3. Save the new flight
             flightDAO.save(flight);
 
             response.put("success", true);
             response.put("message", "Flight added successfully!");
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
         } catch (Exception e) {
             e.printStackTrace();

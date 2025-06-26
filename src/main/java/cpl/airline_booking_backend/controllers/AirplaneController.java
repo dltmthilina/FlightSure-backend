@@ -2,6 +2,8 @@ package cpl.airline_booking_backend.controllers;
 
 import cpl.airline_booking_backend.dao.AirplaneDAO;
 import cpl.airline_booking_backend.model.Airplane;
+import cpl.airline_booking_backend.model.Airport;
+
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.http.ResponseEntity;
@@ -56,6 +58,13 @@ public class AirplaneController {
         Map<String, Object> response = new HashMap<>();
         try {
             List<Airplane> airplanes = airplaneDAO.findAll();
+            for (Airplane airplane : airplanes) {
+                Airport currentLocation = airplaneDAO.getCurrentLocation(airplane.getAirplaneId());
+                if (currentLocation == null) {
+                    currentLocation = airplane.getInitialLocation();
+                }
+                airplane.setCurrentLocation(currentLocation); // Add this setter to your model
+            }
             response.put("success", true);
             response.put("data", airplanes);
             return ResponseEntity
@@ -132,6 +141,28 @@ public class AirplaneController {
             response.put("success", false);
             response.put("message", "Duplicate entry for registration number: " + airplane.getRegNumber());
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @GetMapping("/{id}/current-location")
+    public ResponseEntity<Map<String, Object>> getCurrentLocation(@PathVariable int id) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Airport currentLocation = airplaneDAO.getCurrentLocation(id);
+            if (currentLocation != null) {
+                response.put("success", true);
+                response.put("currentLocation", currentLocation);
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+            } else {
+                response.put("success", false);
+                response.put("message", "Current location not found for airplane ID: " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             response.put("success", false);
