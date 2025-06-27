@@ -45,9 +45,9 @@ public class UserDAO {
                 user.setEmail(rs.getString("email"));
                 user.setPhoneNumber(rs.getString("phone_number"));
                 user.setPassportNumber(rs.getString("passport_number"));
-                user.setPassword(rs.getString("password"));
                 user.setRole(rs.getString("role"));
                 user.setStatus(rs.getString("status"));
+                user.setPassword(null);
 
                 users.add(user);
             }
@@ -57,28 +57,71 @@ public class UserDAO {
     }
     
     public User findByEmail(String email) throws Exception {
-    String sql = "SELECT * FROM users WHERE email = ?";
-    try (Connection conn = DatabaseConfig.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        String sql = "SELECT * FROM users WHERE email = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        stmt.setString(1, email);
-        ResultSet rs = stmt.executeQuery();
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
 
-        if (rs.next()) {
-            User user = new User();
-            user.setUserId(rs.getInt("user_id"));
-            user.setFirstName(rs.getString("first_name"));
-            user.setLastName(rs.getString("last_name"));
-            user.setEmail(rs.getString("email"));
-            user.setPhoneNumber(rs.getString("phone_number"));
-            user.setPassportNumber(rs.getString("passport_number"));
-            user.setPassword(rs.getString("password"));
-            user.setRole(rs.getString("role"));
-            user.setStatus(rs.getString("status"));
-            return user;
+            if (rs.next()) {
+                User user = new User();
+                user.setUserId(rs.getInt("user_id"));
+                user.setFirstName(rs.getString("first_name"));
+                user.setLastName(rs.getString("last_name"));
+                user.setEmail(rs.getString("email"));
+                user.setPhoneNumber(rs.getString("phone_number"));
+                user.setPassportNumber(rs.getString("passport_number"));
+                user.setPassword(rs.getString("password"));
+                user.setRole(rs.getString("role"));
+                user.setStatus(rs.getString("status"));
+                return user;
+            }
+        }
+        return null;
+    }
+
+    public User findById(int userId) throws Exception {
+        String sql = "SELECT * FROM users WHERE user_id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                User user = new User();
+                user.setUserId(rs.getInt("user_id"));
+                user.setFirstName(rs.getString("first_name"));
+                user.setLastName(rs.getString("last_name"));
+                user.setEmail(rs.getString("email"));
+                user.setPhoneNumber(rs.getString("phone_number"));
+                user.setPassportNumber(rs.getString("passport_number"));
+                user.setPassword(null); // Do not expose password
+                user.setRole(rs.getString("role"));
+                user.setStatus(rs.getString("status"));
+                return user;
+            }
+        }
+        return null;
+    }
+
+    public void update(User user) throws Exception {
+        String sql = "UPDATE users SET first_name = ?, last_name = ?, email = ?, phone_number = ?, passport_number = ?, role = ?, status = ? WHERE user_id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, user.getFirstName());
+            stmt.setString(2, user.getLastName());
+            stmt.setString(3, user.getEmail());
+            stmt.setString(4, user.getPhoneNumber());
+            stmt.setString(5, user.getPassportNumber());
+            stmt.setString(6, user.getRole());
+            stmt.setString(7, user.getStatus());
+            stmt.setInt(8, user.getUserId());
+
+            stmt.executeUpdate();
         }
     }
-    return null;
-}
 
 }

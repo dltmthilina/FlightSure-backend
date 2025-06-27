@@ -9,7 +9,6 @@ public class User {
     private String passportNumber;
     private String password;
     private String role;
-    private String nationality;
     private String status;
 
     // No-argument constructor
@@ -83,7 +82,7 @@ public class User {
         this.email = email;
     }
     
-    public void setPhoneNumber(String phonNumber) {
+    public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
     
