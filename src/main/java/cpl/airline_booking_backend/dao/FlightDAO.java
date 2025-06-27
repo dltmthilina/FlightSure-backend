@@ -3,6 +3,7 @@ package cpl.airline_booking_backend.dao;
 import cpl.airline_booking_backend.config.DatabaseConfig;
 import cpl.airline_booking_backend.model.Flight;
 import cpl.airline_booking_backend.model.Airplane;
+import cpl.airline_booking_backend.model.Airport;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.List;
 public class FlightDAO {
 
     public void save(Flight flight) throws Exception {
-        String sql = "INSERT INTO flights (flight_number, origin, destination, departure_time, arrival_time, airplane_id) "
+        String sql = "INSERT INTO flights (flight_number, origin_id, destination_id, departure_time, arrival_time, airplane_id) "
                 +
                 "VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -19,8 +20,8 @@ public class FlightDAO {
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, flight.getFlightNumber());
-            stmt.setString(2, flight.getOrigin());
-            stmt.setString(3, flight.getDestination());
+            stmt.setString(2, flight.getOriginId());
+            stmt.setString(3, flight.getDestinationId());
             stmt.setString(4, flight.getDepartureTime());
             stmt.setString(5, flight.getArrivalTime());
             stmt.setInt(6, flight.getAirplaneId());
@@ -31,7 +32,16 @@ public class FlightDAO {
 
     public List<Flight> findAll() throws Exception {
         List<Flight> flights = new ArrayList<>();
-        String sql = "SELECT f.*, a.*" + "FROM flights f JOIN airplanes a ON f.airplane_id = a.airplane_id";
+        String sql = "SELECT f.*, " +
+                "a.*, " +
+                "ao.airport_id AS origin_airport_id, ao.code AS origin_code, ao.name AS origin_name, ao.city AS origin_city, ao.country AS origin_country, ao.time_zone AS origin_time_zone, "
+                +
+                "ad.airport_id AS dest_airport_id, ad.code AS dest_code, ad.name AS dest_name, ad.city AS dest_city, ad.country AS dest_country, ad.time_zone AS dest_time_zone "
+                +
+                "FROM flights f " +
+                "JOIN airplanes a ON f.airplane_id = a.airplane_id " +
+                "LEFT JOIN airports ao ON f.origin_id = ao.airport_id " +
+                "LEFT JOIN airports ad ON f.destination_id = ad.airport_id";
 
         try (Connection conn = DatabaseConfig.getConnection();
                 Statement stmt = conn.createStatement();
@@ -41,8 +51,8 @@ public class FlightDAO {
                 Flight f = new Flight();
                 f.setFlightId(rs.getInt("flight_id"));
                 f.setFlightNumber(rs.getString("flight_number"));
-                f.setOrigin(rs.getString("origin"));
-                f.setDestination(rs.getString("destination"));
+                f.setOriginId(rs.getString("origin_id"));
+                f.setDestinationId(rs.getString("destination_id"));
                 f.setDepartureTime(rs.getString("departure_time"));
                 f.setArrivalTime(rs.getString("arrival_time"));
                 f.setAirplaneId(rs.getInt("airplane_id"));
@@ -56,8 +66,26 @@ public class FlightDAO {
                 a.setCapacityBusiness(rs.getInt("capacity_business"));
                 a.setCapacityEconomy(rs.getInt("capacity_economy"));
                 a.setManufacturer(rs.getString("manufacturer"));
-
                 f.setAirplane(a);
+
+                // Origin Airport
+                Airport origin = new Airport();
+                origin.setAirportId(rs.getInt("origin_airport_id"));
+                origin.setCode(rs.getString("origin_code"));
+                origin.setName(rs.getString("origin_name"));
+                origin.setCity(rs.getString("origin_city"));
+                origin.setCountry(rs.getString("origin_country"));
+                origin.setTimeZone(rs.getString("origin_time_zone"));
+                f.setOrigin(origin);
+
+                Airport dest = new Airport();
+                dest.setAirportId(rs.getInt("dest_airport_id"));
+                dest.setCode(rs.getString("dest_code"));
+                dest.setName(rs.getString("dest_name"));
+                dest.setCity(rs.getString("dest_city"));
+                dest.setCountry(rs.getString("dest_country"));
+                dest.setTimeZone(rs.getString("dest_time_zone"));
+                f.setDestination(dest);
 
                 flights.add(f);
             }
@@ -79,8 +107,8 @@ public class FlightDAO {
                     Flight flight = new Flight();
                     flight.setFlightId(rs.getInt("flight_id"));
                     flight.setFlightNumber(rs.getString("flight_number"));
-                    flight.setOrigin(rs.getString("origin"));
-                    flight.setDestination(rs.getString("destination"));
+                    flight.setOriginId(rs.getString("origin_id"));
+                    flight.setDestinationId(rs.getString("destination_id"));
                     flight.setDepartureTime(rs.getString("departure_time"));
                     flight.setArrivalTime(rs.getString("arrival_time"));
                     flight.setAirplaneId(rs.getInt("airplane_id"));

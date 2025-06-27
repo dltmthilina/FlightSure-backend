@@ -38,7 +38,7 @@ public class FlightController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
 
-            if (!locationAtDeparture.equals(flight.getOrigin())) {
+            if (!locationAtDeparture.equals(flight.getOriginId())) {
                 response.put("success", false);
                 response.put("message", "Airplane is not at the origin location at the departure time");
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
@@ -94,8 +94,8 @@ public class FlightController {
         }
 
         existingFlight.setFlightNumber(flight.getFlightNumber());
-        existingFlight.setOrigin(flight.getOrigin());
-        existingFlight.setDestination(flight.getDestination());
+        existingFlight.setOriginId(flight.getOriginId());
+        existingFlight.setDestinationId(flight.getDestinationId());
         existingFlight.setDepartureTime(flight.getDepartureTime());
         existingFlight.setArrivalTime(flight.getArrivalTime());
         existingFlight.setAirplaneId(flight.getAirplaneId());

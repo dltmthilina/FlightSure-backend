@@ -151,7 +151,7 @@ public class AirplaneDAO {
 
     public Airport getCurrentLocation(int airplaneId) throws Exception {
         String sql = "SELECT ap.* FROM flights f " +
-                "JOIN airports ap ON f.destination = ap.airport_id " +
+                "JOIN airports ap ON f.destination_id = ap.airport_id " +
                 "WHERE f.airplane_id = ? AND f.arrival_time <= NOW() " +
                 "ORDER BY f.arrival_time DESC LIMIT 1";
         try (Connection conn = DatabaseConfig.getConnection();
