@@ -70,8 +70,26 @@ public class FlightController {
         }
     }
 
+    @GetMapping("/{id}/current-location")
+    public ResponseEntity<Map<String, Object>> getCurrentLocationOfFlight(@PathVariable String airplaneId,
+            String departureTime) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+
+            String location = airplaneDAO.getLocationAtTime(airplaneId, departureTime);
+            response.put("success", true);
+            response.put("data", location);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateFlight(@PathVariable int id, @RequestBody Flight flight) {
+    public ResponseEntity<Map<String, Object>> updateFlight(@PathVariable String id, @RequestBody Flight flight) {
 
         Map<String, Object> response = new HashMap<>();
         if (flight == null) {

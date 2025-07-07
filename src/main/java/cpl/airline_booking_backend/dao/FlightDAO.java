@@ -12,20 +12,26 @@ import java.util.List;
 public class FlightDAO {
 
     public void save(Flight flight) throws Exception {
-        String sql = "INSERT INTO flights (flight_number, origin_id, destination_id, departure_time, arrival_time, airplane_id) "
+        String sql = "INSERT INTO flights (flight_id, flight_number, airplane_id, origin_id, destination_id, departure_time, arrival_time, duration, status, economy_seats, business_seats, first_seats, economy_price, business_price, first_price) "
                 +
-                "VALUES (?, ?, ?, ?, ?, ?)";
-
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConfig.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, flight.getFlightNumber());
-            stmt.setString(2, flight.getOriginId());
-            stmt.setString(3, flight.getDestinationId());
-            stmt.setString(4, flight.getDepartureTime());
-            stmt.setString(5, flight.getArrivalTime());
-            stmt.setInt(6, flight.getAirplaneId());
-
+            stmt.setString(1, flight.getFlightId());
+            stmt.setString(2, flight.getFlightNumber());
+            stmt.setString(3, flight.getAirplaneId());
+            stmt.setString(4, flight.getOriginId());
+            stmt.setString(5, flight.getDestinationId());
+            stmt.setString(6, flight.getDepartureTime());
+            stmt.setString(7, flight.getArrivalTime());
+            stmt.setInt(8, flight.getDuration());
+            stmt.setString(9, flight.getStatus());
+            stmt.setInt(10, flight.getEconomySeats());
+            stmt.setInt(11, flight.getBusinessSeats());
+            stmt.setInt(12, flight.getFirstSeats());
+            stmt.setBigDecimal(13, flight.getEconomyPrice());
+            stmt.setBigDecimal(14, flight.getBusinessPrice());
+            stmt.setBigDecimal(15, flight.getFirstPrice());
             stmt.executeUpdate();
         }
     }
@@ -49,16 +55,24 @@ public class FlightDAO {
 
             while (rs.next()) {
                 Flight f = new Flight();
-                f.setFlightId(rs.getInt("flight_id"));
+                f.setFlightId(rs.getString("flight_id"));
                 f.setFlightNumber(rs.getString("flight_number"));
+                f.setAirplaneId(rs.getString("airplane_id"));
                 f.setOriginId(rs.getString("origin_id"));
                 f.setDestinationId(rs.getString("destination_id"));
                 f.setDepartureTime(rs.getString("departure_time"));
                 f.setArrivalTime(rs.getString("arrival_time"));
-                f.setAirplaneId(rs.getInt("airplane_id"));
+                f.setDuration(rs.getInt("duration"));
+                f.setStatus(rs.getString("status"));
+                f.setEconomySeats(rs.getInt("economy_seats"));
+                f.setBusinessSeats(rs.getInt("business_seats"));
+                f.setFirstSeats(rs.getInt("first_seats"));
+                f.setEconomyPrice(rs.getBigDecimal("economy_price"));
+                f.setBusinessPrice(rs.getBigDecimal("business_price"));
+                f.setFirstPrice(rs.getBigDecimal("first_price"));
 
                 Airplane a = new Airplane();
-                a.setAirplaneId(rs.getInt("airplane_id"));
+                a.setAirplaneId(rs.getString("airplane_id"));
                 a.setRegNumber(rs.getString("reg_number"));
                 a.setModel(rs.getString("model"));
                 a.setCategory(rs.getString("category"));
@@ -94,27 +108,35 @@ public class FlightDAO {
         return flights;
     }
 
-    public Flight findById(int flightId) throws Exception {
+    public Flight findById(String flightId) throws Exception {
         String sql = "SELECT f.*, a.* FROM flights f JOIN airplanes a ON f.airplane_id = a.airplane_id WHERE f.flight_id = ?";
 
         try (Connection conn = DatabaseConfig.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, flightId);
+            stmt.setString(1, flightId);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    Flight flight = new Flight();
-                    flight.setFlightId(rs.getInt("flight_id"));
-                    flight.setFlightNumber(rs.getString("flight_number"));
-                    flight.setOriginId(rs.getString("origin_id"));
-                    flight.setDestinationId(rs.getString("destination_id"));
-                    flight.setDepartureTime(rs.getString("departure_time"));
-                    flight.setArrivalTime(rs.getString("arrival_time"));
-                    flight.setAirplaneId(rs.getInt("airplane_id"));
+                    Flight f = new Flight();
+                    f.setFlightId(rs.getString("flight_id"));
+                    f.setFlightNumber(rs.getString("flight_number"));
+                    f.setAirplaneId(rs.getString("airplane_id"));
+                    f.setOriginId(rs.getString("origin_id"));
+                    f.setDestinationId(rs.getString("destination_id"));
+                    f.setDepartureTime(rs.getString("departure_time"));
+                    f.setArrivalTime(rs.getString("arrival_time"));
+                    f.setDuration(rs.getInt("duration"));
+                    f.setStatus(rs.getString("status"));
+                    f.setEconomySeats(rs.getInt("economy_seats"));
+                    f.setBusinessSeats(rs.getInt("business_seats"));
+                    f.setFirstSeats(rs.getInt("first_seats"));
+                    f.setEconomyPrice(rs.getBigDecimal("economy_price"));
+                    f.setBusinessPrice(rs.getBigDecimal("business_price"));
+                    f.setFirstPrice(rs.getBigDecimal("first_price"));
 
                     Airplane airplane = new Airplane();
-                    airplane.setAirplaneId(rs.getInt("airplane_id"));
+                    airplane.setAirplaneId(rs.getString("airplane_id"));
                     airplane.setRegNumber(rs.getString("reg_number"));
                     airplane.setModel(rs.getString("model"));
                     airplane.setCategory(rs.getString("category"));
@@ -123,9 +145,9 @@ public class FlightDAO {
                     airplane.setCapacityEconomy(rs.getInt("capacity_economy"));
                     airplane.setManufacturer(rs.getString("manufacturer"));
 
-                    flight.setAirplane(airplane);
+                    f.setAirplane(airplane);
 
-                    return flight;
+                    return f;
                 } else {
                     return null;
                 }
@@ -133,7 +155,7 @@ public class FlightDAO {
         }
     }
 
-    public boolean hasTimeConflict(int airplaneId, String newDepartureTime, String newArrivalTime) throws Exception {
+    public boolean hasTimeConflict(String airplaneId, String newDepartureTime, String newArrivalTime) throws Exception {
         String sql = "SELECT COUNT(*) FROM flights " +
                 "WHERE airplane_id = ? " +
                 "AND arrival_time > NOW() " + // Only consider not completed flights
@@ -141,7 +163,7 @@ public class FlightDAO {
                 "OR (departure_time < ? AND arrival_time > ?))";
         try (Connection conn = DatabaseConfig.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, airplaneId);
+            stmt.setString(1, airplaneId);
             stmt.setString(2, newArrivalTime);
             stmt.setString(3, newDepartureTime);
             stmt.setString(4, newArrivalTime);

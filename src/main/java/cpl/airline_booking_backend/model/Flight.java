@@ -1,13 +1,23 @@
 package cpl.airline_booking_backend.model;
 
+import java.math.BigDecimal;
+
 public class Flight {
-    private int flightId;
+    private String flightId;
     private String flightNumber;
+    private String airplaneId;
     private String originId;
     private String destinationId;
     private String departureTime;
     private String arrivalTime;
-    private int airplaneId;
+    private int duration;
+    private String status;
+    private int economySeats;
+    private int businessSeats;
+    private int firstSeats;
+    private BigDecimal economyPrice;
+    private BigDecimal businessPrice;
+    private BigDecimal firstPrice;
 
     private Airplane airplane;
     private Airport origin;
@@ -16,8 +26,8 @@ public class Flight {
     public Flight() {
     }
 
-    public Flight(int flightId, String flightNumber, String originId, String destinationId,
-            String departureTime, String arrivalTime, int airplaneId) {
+    public Flight(String flightId, String flightNumber, String originId, String destinationId,
+            String departureTime, String arrivalTime, String airplaneId) {
         this.flightId = flightId;
         this.flightNumber = flightNumber;
         this.originId = originId;
@@ -27,11 +37,11 @@ public class Flight {
         this.airplaneId = airplaneId;
     }
 
-    public int getFlightId() {
+    public String getFlightId() {
         return flightId;
     }
 
-    public void setFlightId(int flightId) {
+    public void setFlightId(String flightId) {
         this.flightId = flightId;
     }
 
@@ -75,11 +85,11 @@ public class Flight {
         this.arrivalTime = arrivalTime;
     }
 
-    public int getAirplaneId() {
+    public String getAirplaneId() {
         return airplaneId;
     }
 
-    public void setAirplaneId(int airplaneId) {
+    public void setAirplaneId(String airplaneId) {
         this.airplaneId = airplaneId;
     }
 
@@ -105,6 +115,70 @@ public class Flight {
 
     public void setDestination(Airport destination) {
         this.destination = destination;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public int getEconomySeats() {
+        return economySeats;
+    }
+
+    public void setEconomySeats(int economySeats) {
+        this.economySeats = economySeats;
+    }
+
+    public int getBusinessSeats() {
+        return businessSeats;
+    }
+
+    public void setBusinessSeats(int businessSeats) {
+        this.businessSeats = businessSeats;
+    }
+
+    public int getFirstSeats() {
+        return firstSeats;
+    }
+
+    public void setFirstSeats(int firstSeats) {
+        this.firstSeats = firstSeats;
+    }
+
+    public BigDecimal getEconomyPrice() {
+        return economyPrice;
+    }
+
+    public void setEconomyPrice(BigDecimal economyPrice) {
+        this.economyPrice = economyPrice;
+    }
+
+    public BigDecimal getBusinessPrice() {
+        return businessPrice;
+    }
+
+    public void setBusinessPrice(BigDecimal businessPrice) {
+        this.businessPrice = businessPrice;
+    }
+
+    public BigDecimal getFirstPrice() {
+        return firstPrice;
+    }
+
+    public void setFirstPrice(BigDecimal firstPrice) {
+        this.firstPrice = firstPrice;
     }
 
 }
