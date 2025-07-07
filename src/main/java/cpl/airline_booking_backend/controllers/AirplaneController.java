@@ -81,7 +81,7 @@ public class AirplaneController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> getAirplaneById(@PathVariable int id) {
+    public ResponseEntity<Map<String, Object>> getAirplaneById(@PathVariable String id) {
         Map<String, Object> response = new HashMap<>();
         try {
             Optional<Airplane> airplane = airplaneDAO.findById(id);
@@ -109,7 +109,7 @@ public class AirplaneController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateAirplane(@PathVariable int id, @RequestBody Airplane airplane) {
+    public ResponseEntity<Map<String, Object>> updateAirplane(@PathVariable String id, @RequestBody Airplane airplane) {
 
         Map<String, Object> response = new HashMap<>();
         try {
@@ -150,7 +150,7 @@ public class AirplaneController {
     }
 
     @GetMapping("/{id}/current-location")
-    public ResponseEntity<Map<String, Object>> getCurrentLocation(@PathVariable int id) {
+    public ResponseEntity<Map<String, Object>> getCurrentLocation(@PathVariable String id) {
         Map<String, Object> response = new HashMap<>();
         try {
             Airport currentLocation = airplaneDAO.getCurrentLocation(id);

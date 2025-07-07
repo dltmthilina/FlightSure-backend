@@ -45,7 +45,7 @@ public class AirplaneDAO {
             stmt.setInt(6, airplane.getCapacityEconomy());
             stmt.setString(7, airplane.getInitialLocationId());
             stmt.setString(8, airplane.getManufacturer());
-            stmt.setInt(9, airplane.getAirplaneId());
+            stmt.setString(9, airplane.getAirplaneId());
             stmt.executeUpdate();
         }
     }
@@ -60,7 +60,7 @@ public class AirplaneDAO {
 
             while (rs.next()) {
                 Airplane a = new Airplane();
-                a.setAirplaneId(rs.getInt("airplane_id"));
+                a.setAirplaneId(rs.getString("airplane_id"));
                 a.setRegNumber(rs.getString("reg_number"));
                 a.setModel(rs.getString("model"));
                 a.setCategory(rs.getString("category"));
@@ -102,7 +102,7 @@ public class AirplaneDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     Airplane a = new Airplane();
-                    a.setAirplaneId(rs.getInt("airplane_id"));
+                    a.setAirplaneId(rs.getString("airplane_id"));
                     a.setModel(rs.getString("model"));
                     a.setRegNumber(rs.getString("reg_number"));
                     a.setCategory(rs.getString("category"));
@@ -120,18 +120,18 @@ public class AirplaneDAO {
         }
     }
 
-    public Optional<Airplane> findById(int airplaneId) throws Exception {
+    public Optional<Airplane> findById(String airplaneId) throws Exception {
         String sql = "SELECT * FROM airplanes WHERE airplane_id = ?";
 
         try (Connection conn = DatabaseConfig.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, airplaneId);
+            stmt.setString(1, airplaneId);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     Airplane a = new Airplane();
-                    a.setAirplaneId(rs.getInt("airplane_id"));
+                    a.setAirplaneId(rs.getString("airplane_id"));
                     a.setModel(rs.getString("model"));
                     a.setRegNumber(rs.getString("reg_number"));
                     a.setCategory(rs.getString("category"));
@@ -149,14 +149,14 @@ public class AirplaneDAO {
         }
     }
 
-    public Airport getCurrentLocation(int airplaneId) throws Exception {
+    public Airport getCurrentLocation(String airplaneId) throws Exception {
         String sql = "SELECT ap.* FROM flights f " +
                 "JOIN airports ap ON f.destination_id = ap.airport_id " +
                 "WHERE f.airplane_id = ? AND f.arrival_time <= NOW() " +
                 "ORDER BY f.arrival_time DESC LIMIT 1";
         try (Connection conn = DatabaseConfig.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, airplaneId);
+            stmt.setString(1, airplaneId);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -198,18 +198,18 @@ public class AirplaneDAO {
         return null;
     }
 
-    public String getLocationAtTime(int airplaneId, String departureTime) throws Exception {
+    public String getLocationAtTime(String airplaneId, String departureTime) throws Exception {
         // Find the latest flight that ends before the new departure time
-        String sql = "SELECT destination FROM flights " +
+        String sql = "SELECT destination_id FROM flights " +
                 "WHERE airplane_id = ? AND arrival_time <= ? " +
                 "ORDER BY arrival_time DESC LIMIT 1";
         try (Connection conn = DatabaseConfig.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, airplaneId);
+            stmt.setString(1, airplaneId);
             stmt.setString(2, departureTime);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getString("destination");
+                    return rs.getString("destination_id");
                 }
             }
         }

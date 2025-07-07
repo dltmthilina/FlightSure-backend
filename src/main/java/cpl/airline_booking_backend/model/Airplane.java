@@ -1,7 +1,7 @@
 package cpl.airline_booking_backend.model;
 
 public class Airplane {
-    private int airplaneId;
+    private String airplaneId;
     private String regNumber;
     private String model;
     private String category;
@@ -16,7 +16,8 @@ public class Airplane {
     public Airplane() {
     }
 
-    public Airplane(int airplaneId, String regNumber, String model, String category, int capacityFirst,
+    public Airplane(
+                    String airplaneId, String regNumber, String model, String category, int capacityFirst,
             int capacityBusiness, int capacityEconomy, String manufacturer, String initialLocationId) {
         this.airplaneId = airplaneId;
         this.regNumber = regNumber;
@@ -38,11 +39,11 @@ public class Airplane {
         this.currentLocation = location;
     }
 
-    public int getAirplaneId() {
+    public String getAirplaneId() {
         return airplaneId;
     }
 
-    public void setAirplaneId(int airplaneId) {
+    public void setAirplaneId(String airplaneId) {
         this.airplaneId = airplaneId;
     }
 
